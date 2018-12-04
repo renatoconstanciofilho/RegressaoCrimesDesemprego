@@ -10,7 +10,6 @@ clear all;
 percentual_teste = 0.3;
 
 %% Carregar CSV
-
 d = sortrows(table2array(readtable("desCrimIpeaMJ0315.xls")));
 dNorm = normalize(d,'range');
 x = d(:,1);
@@ -19,17 +18,15 @@ xNorm = dNorm(:,1);
 yNorm = dNorm(:,2);
 
 %% Correlação
-
-c = correlacao(xNorm,yNorm);
+c = corrcoef(xNorm,yNorm);
 
 %% Gráfico de dispersão
-
 scatter(xNorm,yNorm,'+','r');
 hold on;
 grid on;
 xlabel('Taxa de desemprego');
 ylabel('Total de crimes');
-t = sprintf('Correlação: %f', c)
+t = sprintf('Correlação: %f', c(1,2))
 title(t);
 
 %% Regressão linear
@@ -64,20 +61,17 @@ y16 = polyval(p,xNorm);
 plot(xNorm,y16,'color',[0.7100    0.7100    0.7100]);
 
 %% Legendas Gráfico
-
 legend('Dados','Linear','Poli 2','Poli 3','Poli 5','Poli 7','Poli 9','Poli 16', 'southeast');
 
 %% EQM
-% 3 Calcular EQM
-[eqm2] = calcula_eqm(yNorm, y2);
-[eqm3] = calcula_eqm(yNorm, y3);
-[eqm5] = calcula_eqm(yNorm, y5);
-[eqm7] = calcula_eqm(yNorm, y7);
-[eqm9] = calcula_eqm(yNorm, y9);
-[eqm16] = calcula_eqm(yNorm, y16);
+[eqm2] = immse(yNorm, y2);
+[eqm3] = immse(yNorm, y3);
+[eqm5] = immse(yNorm, y5);
+[eqm7] = immse(yNorm, y7);
+[eqm9] = immse(yNorm, y9);
+[eqm16] = immse(yNorm, y16);
 
 %% Aprendizado
-% 4 Separar os dados 90%/10%
 qtd_teste = round(length(xNorm) * percentual_teste);
 sorteados = randperm(length(xNorm),qtd_teste);
 x_teste = xNorm(sorteados);
@@ -88,7 +82,6 @@ x_aprend(sorteados,:) = [];
 y_aprend(sorteados,:) = [];
 
 %% Calcular regressão da base de aprendizado
-% 5 Calcular o B e regressao 90%
 BA2 = polyfit(x_aprend, y_aprend, 2);
 ya2 = calcula_y(BA2, x_aprend);
 BA3 = polyfit(x_aprend, y_aprend, 3);
@@ -103,7 +96,6 @@ BA16 = polyfit(x_aprend, y_aprend, 16);
 ya16 = calcula_y(BA16, x_aprend);
 
 %% Calcular regressao da base de teste usando B do treinamento
-% 6 Calcular A regressao EQM teste (com B do treinamento)
 yt2 = calcula_y(BA2, x_teste);
 yt3 = calcula_y(BA3, x_teste);
 yt5 = calcula_y(BA5, x_teste);
@@ -111,8 +103,7 @@ yt7 = calcula_y(BA7, x_teste);
 yt9 = calcula_y(BA9, x_teste);
 yt16 = calcula_y(BA16, x_teste);
 
-% calcular o EQM utilizando os 5 selecionados e o y calculado dos valores
-% de teste
+% calcular o EQM utilizando dos valores de teste
 [eqmt2] = calcula_eqm(y_aprend,ya2);
 [eqmt3] = calcula_eqm(y_aprend,ya3);
 [eqmt5] = calcula_eqm(y_aprend,ya5);
